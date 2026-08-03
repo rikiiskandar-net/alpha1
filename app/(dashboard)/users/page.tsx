@@ -12,10 +12,10 @@ const users = [
   { id: 6, name: 'Diana Evans', email: 'diana@example.com', role: 'Viewer', status: 'active', joined: '12 Apr 2026' },
 ]
 
-const statusVariant = {
-  active: 'success' as const,
-  inactive: 'danger' as const,
-  pending: 'warning' as const,
+const statusVariant: Record<string, 'success' | 'danger' | 'warning'> = {
+  active: 'success',
+  inactive: 'danger',
+  pending: 'warning',
 }
 
 export default function UsersPage() {

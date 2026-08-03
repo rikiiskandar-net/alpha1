@@ -13,11 +13,11 @@ export default function RegisterPage() {
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
-  const [form, setForm] = RegisterInput ? useState<RegisterInput>({
+  const [form, setForm] = useState<RegisterInput>({
     fullName: '',
     email: '',
     password: '',
-  }) : useState({ fullName: '', email: '', password: '' })
+  })
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
