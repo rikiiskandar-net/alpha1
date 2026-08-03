@@ -4,6 +4,8 @@ import { NextResponse } from 'next/server'
 export async function POST(request: Request) {
   const { email, password } = await request.json()
 
+  const supabaseResponse = NextResponse.json({ success: true })
+
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -12,7 +14,11 @@ export async function POST(request: Request) {
         getAll() {
           return []
         },
-        setAll() {},
+        setAll(cookiesToSet: { name: string; value: string; options?: Record<string, unknown> }[]) {
+          cookiesToSet.forEach(({ name, value, options }) =>
+            supabaseResponse.cookies.set(name, value, options)
+          )
+        },
       },
     }
   )
@@ -29,25 +35,19 @@ export async function POST(request: Request) {
     )
   }
 
-  const response = NextResponse.json({ user: data.user })
-
-  // Set session cookies
   if (data.session) {
-    response.cookies.set('sb-access-token', data.session.access_token, {
-      path: '/',
-      httpOnly: true,
-      secure: true,
-      sameSite: 'lax',
-      maxAge: data.session.expires_in,
-    })
-    response.cookies.set('sb-refresh-token', data.session.refresh_token, {
-      path: '/',
-      httpOnly: true,
-      secure: true,
-      sameSite: 'lax',
-      maxAge: data.session.expires_in,
-    })
+    supabaseResponse.cookies.set(
+      `sb-${process.env.NEXT_PUBLIC_SUPABASE_URL!.replace('https://', '').replace('.supabase.co', '')}-auth-token`,
+      btoa(JSON.stringify(data.session)),
+      {
+        path: '/',
+        httpOnly: true,
+        secure: true,
+        sameSite: 'lax',
+        maxAge: data.session.expires_in,
+      }
+    )
   }
 
-  return response
+  return supabaseResponse
 }
